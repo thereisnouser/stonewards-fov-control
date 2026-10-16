@@ -1,18 +1,18 @@
 # FOV Control
 
-Extend Stonewards' original **FOV slider up to 150°** (instead of 100°).
+Extend Stonewards' built-in **Field of View slider from 100° to 150°**.
 
 ## Features
 
-- Uses the **existing FOV slider** in Stonewards settings.
-- Keeps the game's original visuals and setting persistence.
-- No extra interface, config files, or hotkeys.
-- Client-side only: no gameplay or multiplayer changes.
+- Adjust FOV through the game's original settings menu.
+- Keeps the native interface, camera behavior and saved settings.
+- No additional UI, hotkeys or configuration required.
+- Client-side only — other players do not need the mod.
 
-## Usage
+## How to use
 
-Install with r2modman, launch Stonewards, and adjust the existing FOV slider in **Settings → Game**.
+Install through r2modman or Thunderstore Mod Manager. Launch Stonewards and open **Settings → Game → FOV**, then move the original slider to the desired value.
 
-**Uninstall note:** Set FOV back to 100° or lower before uninstalling to avoid an out-of-range saved value in the unmodded menu.
+**Before uninstalling:** set FOV to 100° or less so it remains within the original game's range.
 
 [Source code and issue tracker](https://github.com/thereisnouser/stonewards-fov-control)
