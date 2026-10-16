@@ -1,86 +1,128 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$GameDir,
-    [Parameter(Mandatory = $true)][string]$ProfileDir
+    [Parameter(Mandatory = $true)][string]$ProfileDir,
+    [string]$IconPath
 )
+
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$root = $PSScriptRoot
-$manifestPath = Join-Path $root 'thunderstore\manifest.json'
-$readmePath = Join-Path $root 'thunderstore\README.md'
-$changelogPath = Join-Path $root 'thunderstore\CHANGELOG.md'
-$iconPath = Join-Path $root 'thunderstore\icon.png'
-$project = Join-Path $root 'src\StonewardsFOVControl\StonewardsFOVControl.csproj'
 
-foreach ($file in @($manifestPath, $readmePath, $changelogPath, $project)) {
-    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing required file: $file" }
+$root = $PSScriptRoot
+$project = Join-Path $root 'src\StonewardsFOVControl\StonewardsFOVControl.csproj'
+$source = Join-Path $root 'src\StonewardsFOVControl\FovControlPlugin.cs'
+$metadata = Join-Path $root 'thunderstore'
+$manifestPath = Join-Path $metadata 'manifest.json'
+$readmePath = Join-Path $metadata 'README.md'
+$changelogPath = Join-Path $metadata 'CHANGELOG.md'
+if ([string]::IsNullOrWhiteSpace($IconPath)) {
+    $IconPath = Join-Path $metadata 'icon.png'
+}
+
+foreach ($path in @($project, $source, $manifestPath, $readmePath, $changelogPath)) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        throw "Required release file is missing: $path"
+    }
+}
+if (-not (Test-Path -LiteralPath $IconPath -PathType Leaf)) {
+    throw "FOV+ icon not found: $IconPath. Extract the release assets ZIP into the repository root so thunderstore\icon.png exists."
+}
+
+# Validate the actual, selected image. Never silently replace it with a placeholder.
+Add-Type -AssemblyName System.Drawing
+$img = [System.Drawing.Image]::FromFile($IconPath)
+try {
+    if ($img.Width -ne 256 -or $img.Height -ne 256) {
+        throw "FOV+ icon must be exactly 256x256 PNG; got $($img.Width)x$($img.Height)."
+    }
+    if ($img.RawFormat.Guid -ne [System.Drawing.Imaging.ImageFormat]::Png.Guid) {
+        throw 'FOV+ icon must be a PNG.'
+    }
+}
+finally {
+    $img.Dispose()
+}
+
+$manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$version = [string]$manifest.version_number
+if ($version -notmatch '^\d+\.\d+\.\d+$') {
+    throw "Invalid manifest version: $version"
+}
+if ($manifest.name -ne 'FOV_Control') {
+    throw "Unexpected package name: $($manifest.name)"
+}
+$pluginCode = Get-Content -LiteralPath $source -Raw -Encoding UTF8
+if (-not $pluginCode.Contains('private const string PluginVersion = "' + $version + '";')) {
+    throw "Plugin version does not match manifest $version."
+}
+if (-not $pluginCode.Contains('private const int ExtendedMaximumFov = 150;')) {
+    throw 'Unexpected FOV limit in the source.'
 }
 
 $GameDir = (Resolve-Path -LiteralPath $GameDir).Path
 $ProfileDir = (Resolve-Path -LiteralPath $ProfileDir).Path
-if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) { throw 'dotnet SDK is required.' }
+if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
+    throw 'dotnet SDK not found.'
+}
 
+Write-Host "Building FOV Control $version..." -ForegroundColor Cyan
 & dotnet build $project --configuration Release "-p:GameDir=$GameDir" "-p:ProfileDir=$ProfileDir"
-if ($LASTEXITCODE -ne 0) { throw 'Compilation failed: packaging aborted.' }
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet build failed (exit code $LASTEXITCODE)."
+}
 
 $dll = Join-Path $root 'src\StonewardsFOVControl\bin\Release\netstandard2.1\StonewardsFOVControl.dll'
-if (-not (Test-Path -LiteralPath $dll -PathType Leaf)) { throw "Missing compiled DLL: $dll" }
+if (-not (Test-Path -LiteralPath $dll -PathType Leaf)) {
+    throw "Compiled DLL missing: $dll"
+}
 
-# Generate a clean 256x256 icon when the repository does not include a custom one.
-# System.Drawing is available in Windows PowerShell on Windows.
-Add-Type -AssemblyName System.Drawing
-if (-not (Test-Path -LiteralPath $iconPath -PathType Leaf)) {
-    $bitmap = [System.Drawing.Bitmap]::new(256, 256)
-    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+$dist = Join-Path $root 'dist'
+$stage = Join-Path $dist 'thunderstore-staging'
+$archive = Join-Path $dist ("FOV_Control-" + $version + '.zip')
+
+New-Item -ItemType Directory -Path $dist -Force | Out-Null
+if (Test-Path -LiteralPath $stage) {
+    Remove-Item -LiteralPath $stage -Recurse -Force
+}
+
+try {
+    $pluginDir = Join-Path $stage 'plugins\StonewardsFOVControl'
+    New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null
+
+    Copy-Item -LiteralPath $dll -Destination (Join-Path $pluginDir 'StonewardsFOVControl.dll')
+    Copy-Item -LiteralPath $manifestPath -Destination (Join-Path $stage 'manifest.json')
+    Copy-Item -LiteralPath $readmePath -Destination (Join-Path $stage 'README.md')
+    Copy-Item -LiteralPath $changelogPath -Destination (Join-Path $stage 'CHANGELOG.md')
+    Copy-Item -LiteralPath $IconPath -Destination (Join-Path $stage 'icon.png')
+
+    if (Test-Path -LiteralPath $archive) {
+        Remove-Item -LiteralPath $archive -Force
+    }
+    Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $archive -CompressionLevel Optimal
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($archive)
     try {
-        $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
-        $graphics.Clear([System.Drawing.Color]::FromArgb(21, 29, 41))
-        $outerPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(110, 178, 187), 5)
-        $innerPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(211, 175, 106), 6)
-        $font = [System.Drawing.Font]::new('Arial', 48, [System.Drawing.FontStyle]::Bold)
-        $brush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(239, 236, 226))
-        try {
-            $graphics.DrawEllipse($outerPen, 36, 36, 184, 184)
-            $graphics.DrawArc($innerPen, 60, 60, 136, 136, -120, 240)
-            $graphics.DrawLine($innerPen, 128, 128, 218, 69)
-            $graphics.DrawLine($innerPen, 128, 128, 218, 187)
-            $graphics.DrawString('FOV', $font, $brush, 63, 95)
-            $bitmap.Save($iconPath, [System.Drawing.Imaging.ImageFormat]::Png)
-        }
-        finally {
-            $brush.Dispose()
-            $font.Dispose()
-            $innerPen.Dispose()
-            $outerPen.Dispose()
+        $entries = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
+        foreach ($required in @(
+            'manifest.json', 'README.md', 'CHANGELOG.md', 'icon.png',
+            'plugins/StonewardsFOVControl/StonewardsFOVControl.dll'
+        )) {
+            if ($entries -notcontains $required) {
+                throw "Package ZIP is missing: $required"
+            }
         }
     }
     finally {
-        $graphics.Dispose()
-        $bitmap.Dispose()
+        $zip.Dispose()
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $stage) {
+        Remove-Item -LiteralPath $stage -Recurse -Force
     }
 }
 
-$bitmapCheck = [System.Drawing.Image]::FromFile($iconPath)
-try {
-    if ($bitmapCheck.Width -ne 256 -or $bitmapCheck.Height -ne 256) {
-        throw 'Icon must be 256x256 pixels.'
-    }
-}
-finally { $bitmapCheck.Dispose() }
-
-$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($manifest.version_number -ne '0.1.0') { throw 'Unexpected manifest version.' }
-$dist = Join-Path $root 'dist'
-$stage = Join-Path $dist 'thunderstore-staging'
-New-Item -ItemType Directory -Path $dist -Force | Out-Null
-if (Test-Path -LiteralPath $stage) { Remove-Item -LiteralPath $stage -Recurse -Force }
-New-Item -ItemType Directory -Path (Join-Path $stage 'plugins\StonewardsFOVControl') -Force | Out-Null
-Copy-Item -LiteralPath $dll -Destination (Join-Path $stage 'plugins\StonewardsFOVControl\StonewardsFOVControl.dll')
-foreach ($name in @('manifest.json', 'README.md', 'CHANGELOG.md', 'icon.png')) {
-    Copy-Item -LiteralPath (Join-Path $root "thunderstore\$name") -Destination (Join-Path $stage $name)
-}
-$archive = Join-Path $dist ("FOV_Control-" + $manifest.version_number + '.zip')
-if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
-Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $archive -CompressionLevel Optimal
-Remove-Item -LiteralPath $stage -Recurse -Force
-Write-Host "Thunderstore upload package: $archive" -ForegroundColor Green
+Write-Host ''
+Write-Host "Thunderstore upload ZIP: $archive" -ForegroundColor Green
+Write-Host 'Contains the selected FOV+ icon, manifest, README, changelog and compiled plugin.'
