@@ -50,4 +50,4 @@ Copy-Item -LiteralPath $dll -Destination (Join-Path $pluginDir 'StonewardsFOVCon
 Write-Host ''
 Write-Host 'Installed:' -ForegroundColor Green
 Write-Host (Join-Path $pluginDir 'StonewardsFOVControl.dll')
-Write-Host 'Open the game's native FOV slider in Settings; its maximum should be 150.'
+Write-Host "Open the game's native FOV slider in Settings; its maximum should be 150."
