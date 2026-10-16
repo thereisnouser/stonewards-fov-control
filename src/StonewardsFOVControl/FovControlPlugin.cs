@@ -64,7 +64,7 @@ namespace StonewardsFOVControl
         private void OnDestroy()
         {
             if (_harmony != null)
-                _harmony.UnpatchAll(PluginGuid);
+                _harmony.UnpatchSelf();
         }
     }
 }
