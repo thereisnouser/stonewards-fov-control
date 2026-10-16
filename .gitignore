@@ -5,3 +5,5 @@
 *.user
 *.suo
 *.zip
+dist/
+thunderstore/icon.png
