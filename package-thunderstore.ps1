@@ -69,7 +69,7 @@ try {
 finally { $bitmapCheck.Dispose() }
 
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($manifest.version_number -ne '0.2.0') { throw 'Unexpected manifest version.' }
+if ($manifest.version_number -ne '0.1.0') { throw 'Unexpected manifest version.' }
 $dist = Join-Path $root 'dist'
 $stage = Join-Path $dist 'thunderstore-staging'
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
