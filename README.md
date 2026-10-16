@@ -1,22 +1,23 @@
 # Stonewards FOV Control
 
-A lightweight, client-side BepInEx 5 plugin for Stonewards that allows a wider field of view (up to 150 degrees vertically).
+A small, client-side BepInEx 5 plugin that extends the **existing Stonewards FOV slider** from **60–100° to 60–150°**. No extra interface, camera override, or hotkeys.
 
-## Features
+## How it works
 
-- Adjustable **vertical FOV: 60–150°**, default **100°**.
-- **F8** toggles the override; **Page Up / Page Down** increase/decrease the FOV by 5 degrees.
-- Automatically saves settings to BepInEx config.
-- Optional relative zoom preservation for aiming, sprinting, and other FOV changes (enabled by default).
-- Supports built-in and scriptable render pipelines.
-- Works with the optional [ModSettings](https://thunderstore.io/c/stonewards/p/darkharasho/ModSettings/) in-game mod settings menu via standard `Config.Bind` options.
-- No dependencies on game-specific classes or gameplay/network state.
+- Preserves the game's native **Settings → Game → FOV** control.
+- Uses Harmony to raise the value returned by `GameSettingsControllerSO.get_FPSFovMax()`.
+- The game's own `GameTabSettings.InitFpsFovSlider()` reads that maximum and updates its SliderInt range.
+- The game's existing `OnFPSFovSliderValueChanged()` handler saves the setting to `Saves/Local/settings.es3` and updates `FPSCameraController`'s Cinemachine camera.
+- Keeps the default 60° minimum and the game's own FOV transitions and sprint handling.
+- Does not modify the executable or affect networking/gameplay.
+
+The patch targets the setting itself rather than forcing `Camera.fieldOfView` each frame. Verified against the methods in a Stonewards **October 13, 2026** `Assembly-CSharp.dll`; actual in-game behavior still needs testing.
 
 ## Build and install
 
-Requirements: .NET SDK 8+; Windows PowerShell; Stonewards (Unity Mono); a BepInEx 5 r2modman profile.
+Requires .NET SDK 8+, Stonewards (Unity Mono), and BepInEx 5 via r2modman.
 
-Run from the project folder:
+Clone the repository and run this from its root in PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-and-install.ps1 `
@@ -24,41 +25,11 @@ powershell -ExecutionPolicy Bypass -File .\build-and-install.ps1 `
   -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards"
 ```
 
-The compiled plugin is copied to:
+The installer builds `StonewardsFOVControl.dll` and copies it to `<ProfileDir>\BepInEx\plugins\StonewardsFOVControl\`.
 
-```
-<ProfileDir>\BepInEx\plugins\StonewardsFOVControl\StonewardsFOVControl.dll
-```
+Launch the game through the **same** r2modman profile, open the normal **Game** settings tab, and adjust the original FOV slider (up to 150°). Restart the game after updating from v0.1.0.
 
-**Launch the game through the same r2modman profile** after installation.
-
-## Settings
-
-Configuration is generated after the first game launch:
-
-```
-<ProfileDir>\BepInEx\config\com.stonewardsmods.fovcontrol.cfg
-```
-
-| Section | Key | Default | Description |
-| --- | --- | --- | --- |
-| General | Enabled | true | Apply or disable the override |
-| General | FieldOfView | 100 | Vertical FOV, 60–150° |
-| General | PreserveZoom | true | Preserve relative zoom effects |
-| Hotkeys | Step | 5 | FOV change per hotkey, 1–20° |
-| Hotkeys | Toggle | F8 | Toggle the override |
-| Hotkeys | Increase | PageUp | Increase FOV |
-| Hotkeys | Decrease | PageDown | Decrease FOV |
-
-Unity's `Camera.fieldOfView` is **vertical** FOV. At 16:9, 100° vertical is substantially wider than 100° horizontal.
-
-If zoom feels too weak or too strong, turn off `PreserveZoom` to use a fixed FOV. With zoom preservation enabled, the first FOV observed for a camera becomes its baseline; start playing with the normal, unzoomed camera.
-
-## Technical approach
-
-The plugin chooses `Camera.main` (falling back to an active perspective game camera), changes its `fieldOfView` in `LateUpdate`, and reapplies it in pre-render callbacks. This is meant to handle camera components that rewrite FOV each frame, without patching a specific version of `Assembly-CSharp.dll`.
-
-Since this initial release has not been validated in a running Stonewards 0.2.3 session, please test the main camera, aiming, sprinting, respawning, map transitions, and exiting to the menu. If the game uses a different camera controller or an unusual multi-camera setup, it may require a game-specific patch.
+The plugin requires `BepInEx.dll` and `0Harmony.dll` from the profile, plus Unity assemblies from the game. No `Assembly-CSharp.dll` reference is required for compilation.
 
 ## Uninstall
 
@@ -67,4 +38,11 @@ powershell -ExecutionPolicy Bypass -File .\uninstall.ps1 `
   -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards"
 ```
 
-The config file is deliberately preserved.
+The game's saved FOV value is **not** automatically reset when uninstalling the mod. Before uninstalling, use the in-game slider to select 100° or lower so the vanilla menu can display the value correctly.
+
+## Notes
+
+- This mod intentionally only changes the maximum shown by the native slider. It does **not** add a separate FOV config or hotkeys.
+- The minimum remains 60°; the maximum is 150°.
+- If the game changes its settings controller, the plugin reports an error in the BepInEx log rather than patching an unrelated method.
+- Build and gameplay tests have not been run in this repository environment.

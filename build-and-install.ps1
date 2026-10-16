@@ -21,7 +21,8 @@ $pluginDir = Join-Path $ProfileDir 'BepInEx\plugins\StonewardsFOVControl'
 foreach ($required in @(
     (Join-Path $managedDir 'UnityEngine.dll'),
     (Join-Path $managedDir 'UnityEngine.CoreModule.dll'),
-    (Join-Path $coreDir 'BepInEx.dll')
+    (Join-Path $coreDir 'BepInEx.dll'),
+    (Join-Path $coreDir '0Harmony.dll')
 )) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "Missing dependency: $required"
@@ -49,4 +50,4 @@ Copy-Item -LiteralPath $dll -Destination (Join-Path $pluginDir 'StonewardsFOVCon
 Write-Host ''
 Write-Host 'Installed:' -ForegroundColor Green
 Write-Host (Join-Path $pluginDir 'StonewardsFOVControl.dll')
-Write-Host 'Launch Stonewards through this r2modman profile.'
+Write-Host 'Open the game's native FOV slider in Settings; its maximum should be 150.'
