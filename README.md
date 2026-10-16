@@ -28,7 +28,7 @@ powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1 `
   -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-control"
 ```
 
-Upload `dist/FOV_Control-0.2.0.zip` at [Thunderstore](https://thunderstore.io/package/create/), selecting the Stonewards community and your publishing team. Do **not** upload the source archive.
+Upload `dist/FOV_Control-0.1.0.zip` at [Thunderstore](https://thunderstore.io/package/create/), selecting the Stonewards community and your publishing team. Do **not** upload the source archive.
 
 You can replace the auto-generated icon by placing your own `thunderstore/icon.png` (256×256) before running the package command.
 
