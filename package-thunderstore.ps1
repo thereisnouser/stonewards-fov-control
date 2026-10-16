@@ -30,15 +30,15 @@ if (-not (Test-Path -LiteralPath $dll -PathType Leaf)) { throw "Missing compiled
 # System.Drawing is available in Windows PowerShell on Windows.
 Add-Type -AssemblyName System.Drawing
 if (-not (Test-Path -LiteralPath $iconPath -PathType Leaf)) {
-    $bitmap = New-Object System.Drawing.Bitmap(256, 256)
+    $bitmap = [System.Drawing.Bitmap]::new(256, 256)
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     try {
         $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
         $graphics.Clear([System.Drawing.Color]::FromArgb(21, 29, 41))
-        $outerPen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(110, 178, 187), 5)
-        $innerPen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(211, 175, 106), 6)
-        $font = New-Object System.Drawing.Font('Arial', 48, [System.Drawing.FontStyle]::Bold)
-        $brush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(239, 236, 226))
+        $outerPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(110, 178, 187), 5)
+        $innerPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(211, 175, 106), 6)
+        $font = [System.Drawing.Font]::new('Arial', 48, [System.Drawing.FontStyle]::Bold)
+        $brush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(239, 236, 226))
         try {
             $graphics.DrawEllipse($outerPen, 36, 36, 184, 184)
             $graphics.DrawArc($innerPen, 60, 60, 136, 136, -120, 240)
