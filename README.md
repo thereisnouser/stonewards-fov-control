@@ -1,48 +1,43 @@
 # Stonewards FOV Control
 
-A small, client-side BepInEx 5 plugin that extends the **existing Stonewards FOV slider** from **60–100° to 60–150°**. No extra interface, camera override, or hotkeys.
+A lightweight BepInEx 5 plugin that raises the maximum of Stonewards' **native FOV slider** from **100° to 150°**. No extra UI, hotkeys, or camera override.
 
-## How it works
+## Features
 
-- Preserves the game's native **Settings → Game → FOV** control.
-- Uses Harmony to raise the value returned by `GameSettingsControllerSO.get_FPSFovMax()`.
-- The game's own `GameTabSettings.InitFpsFovSlider()` reads that maximum and updates its SliderInt range.
-- The game's existing `OnFPSFovSliderValueChanged()` handler saves the setting to `Saves/Local/settings.es3` and updates `FPSCameraController`'s Cinemachine camera.
-- Keeps the default 60° minimum and the game's own FOV transitions and sprint handling.
-- Does not modify the executable or affect networking/gameplay.
+- Uses the existing **Settings → Game → FOV** slider.
+- Preserves native camera handling, smooth transitions, and saved settings.
+- Works locally without modifying game files or multiplayer behavior.
 
-The patch targets the setting itself rather than forcing `Camera.fieldOfView` each frame. Verified against the methods in a Stonewards **October 13, 2026** `Assembly-CSharp.dll`; actual in-game behavior still needs testing.
+## Install for development
 
-## Build and install
-
-Requires .NET SDK 8+, Stonewards (Unity Mono), and BepInEx 5 via r2modman.
-
-Clone the repository and run this from its root in PowerShell:
+Requires .NET SDK 8+, Stonewards (Unity Mono), and a BepInEx 5 r2modman profile.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-and-install.ps1 `
   -GameDir "F:\Steam\steamapps\common\Stonewards" `
-  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards"
+  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-control"
 ```
 
-The installer builds `StonewardsFOVControl.dll` and copies it to `<ProfileDir>\BepInEx\plugins\StonewardsFOVControl\`.
+## Create a Thunderstore upload ZIP
 
-Launch the game through the **same** r2modman profile, open the normal **Game** settings tab, and adjust the original FOV slider (up to 150°). Restart the game after updating from v0.1.0.
+The package command compiles the plugin and creates an upload ZIP containing the DLL, metadata, documentation, and a 256×256 PNG icon. If `thunderstore/icon.png` does not exist, it generates a simple icon automatically.
 
-The plugin requires `BepInEx.dll` and `0Harmony.dll` from the profile, plus Unity assemblies from the game. No `Assembly-CSharp.dll` reference is required for compilation.
+```powershell
+powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1 `
+  -GameDir "F:\Steam\steamapps\common\Stonewards" `
+  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-control"
+```
+
+Upload `dist/FOV_Control-0.2.0.zip` at [Thunderstore](https://thunderstore.io/package/create/), selecting the Stonewards community and your publishing team. Do **not** upload the source archive.
+
+You can replace the auto-generated icon by placing your own `thunderstore/icon.png` (256×256) before running the package command.
+
+## Technical implementation
+
+The Harmony postfix patches `GameSettingsControllerSO.get_FPSFovMax()`. This changes the range supplied to the native slider without overriding the camera. Original FOV value persistence is handled by the game.
 
 ## Uninstall
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\uninstall.ps1 `
-  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards"
-```
+Before uninstalling, set FOV to 100° or lower so the saved value stays inside the vanilla slider range. Remove the plugin from your mod manager profile.
 
-The game's saved FOV value is **not** automatically reset when uninstalling the mod. Before uninstalling, use the in-game slider to select 100° or lower so the vanilla menu can display the value correctly.
-
-## Notes
-
-- This mod intentionally only changes the maximum shown by the native slider. It does **not** add a separate FOV config or hotkeys.
-- The minimum remains 60°; the maximum is 150°.
-- If the game changes its settings controller, the plugin reports an error in the BepInEx log rather than patching an unrelated method.
-- Build and gameplay tests have not been run in this repository environment.
+[Thunderstore description](thunderstore/README.md) · [Changelog](thunderstore/CHANGELOG.md)
