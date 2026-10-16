@@ -1,6 +1,6 @@
 {
   "name": "FOV_Control",
-  "version_number": "0.2.0",
+  "version_number": "0.1.0",
   "website_url": "https://github.com/thereisnouser/stonewards-fov-control",
   "description": "Extends Stonewards' native FOV slider from 100 to 150 degrees. No extra UI or hotkeys.",
   "dependencies": [
