@@ -1,16 +1,16 @@
 # Stonewards FOV Control
 
-A lightweight BepInEx 5 plugin that raises the maximum of Stonewards' **native FOV slider** from **100° to 150°**. No extra UI, hotkeys, or camera override.
+A lightweight, client-side BepInEx 5 plugin that extends the **existing Stonewards FOV slider** from a maximum of 100° to **150°**. It does not add another interface, hotkeys, or a camera override.
 
 ## Features
 
-- Uses the existing **Settings → Game → FOV** slider.
-- Preserves native camera handling, smooth transitions, and saved settings.
-- Works locally without modifying game files or multiplayer behavior.
+- Uses the game's native **Settings → Game → FOV** slider.
+- Preserves the game's own camera behavior and setting persistence.
+- No game files modified; no multiplayer-side installation needed.
 
-## Install for development
+## Build and install locally
 
-Requires .NET SDK 8+, Stonewards (Unity Mono), and a BepInEx 5 r2modman profile.
+Requires the .NET SDK, Stonewards and a BepInEx 5 r2modman profile:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-and-install.ps1 `
@@ -18,9 +18,11 @@ powershell -ExecutionPolicy Bypass -File .\build-and-install.ps1 `
   -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-control"
 ```
 
-## Create a Thunderstore upload ZIP
+## Prepare Thunderstore v0.1.0
 
-The package command compiles the plugin and creates an upload ZIP containing the DLL, metadata, documentation, and a 256×256 PNG icon. If `thunderstore/icon.png` does not exist, it generates a simple icon automatically.
+Thunderstore uses a 256×256 PNG icon. This release uses the **selected FOV+ stone-and-brass icon**, not a generated placeholder. Place it at `thunderstore/icon.png` (e.g. by extracting the accompanying release assets ZIP into the repository root).
+
+Build the DLL and create the upload package in one step:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1 `
@@ -28,16 +30,14 @@ powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1 `
   -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-control"
 ```
 
-Upload `dist/FOV_Control-0.1.0.zip` at [Thunderstore](https://thunderstore.io/package/create/), selecting the Stonewards community and your publishing team. Do **not** upload the source archive.
+Output: `dist/FOV_Control-0.1.0.zip`. Upload the resulting ZIP (not the source archive) to the [Stonewards Thunderstore community](https://thunderstore.io/c/stonewards/). The package script checks the icon, version consistency, and archive structure. The compiled DLL requires your local game and BepInEx assemblies.
 
-You can replace the auto-generated icon by placing your own `thunderstore/icon.png` (256×256) before running the package command.
+Package metadata and description: [`thunderstore/`](thunderstore/).
 
-## Technical implementation
+## Implementation
 
-The Harmony postfix patches `GameSettingsControllerSO.get_FPSFovMax()`. This changes the range supplied to the native slider without overriding the camera. Original FOV value persistence is handled by the game.
+Uses a Harmony postfix on `GameSettingsControllerSO.get_FPSFovMax()` so the vanilla slider accepts higher values. No per-frame camera manipulation.
 
 ## Uninstall
 
-Before uninstalling, set FOV to 100° or lower so the saved value stays inside the vanilla slider range. Remove the plugin from your mod manager profile.
-
-[Thunderstore description](thunderstore/README.md) · [Changelog](thunderstore/CHANGELOG.md)
+Set FOV back to 100° or less before uninstalling so the saved value is valid in the unmodded slider. Remove the plugin via your mod manager.
