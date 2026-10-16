@@ -2,6 +2,6 @@
 
 ## 0.1.0
 
-- Extend the native Stonewards FOV slider maximum from 100° to 150°.
-- Preserve built-in camera handling and saved settings.
-- Initial public release; no separate controls or hotkeys.
+- Initial public release.
+- Extend the game's native FOV slider maximum from 100° to 150°.
+- Preserve the built-in settings interface, camera behavior and saved value.
