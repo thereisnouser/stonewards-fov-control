@@ -9,7 +9,7 @@ namespace StonewardsFOVPlus
     public sealed class FovPlusPlugin : BaseUnityPlugin
     {
         private const string PluginGuid = "com.stonewardsmods.fovplus";
-        private const string PluginName = "Stonewards FOV Plus";
+        private const string PluginName = "FOVPlus";
         private const string PluginVersion = "0.1.0";
 
         // Stonewards 0.2.3 normally exposes a 60–100 degree SliderInt.

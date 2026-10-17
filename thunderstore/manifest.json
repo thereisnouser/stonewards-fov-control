@@ -1,8 +1,8 @@
 {
-  "name": "FOV_Plus",
+  "name": "FOVPlus",
   "version_number": "0.1.0",
   "website_url": "https://github.com/thereisnouser/stonewards-fov-plus",
-  "description": "Extends Stonewards' built-in FOV slider from 100 to 150 degrees. No extra UI or hotkeys.",
+  "description": "FOV Plus extends Stonewards' built-in FOV slider from 100 to 150 degrees. No extra UI or hotkeys.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2305"
   ]

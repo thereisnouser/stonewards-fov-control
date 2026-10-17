@@ -1,6 +1,6 @@
-# FOV+
+# FOVPlus
 
-Extend Stonewards' built-in **Field of View slider from 100° to 150°**.
+**FOVPlus (FOV Plus)** extends Stonewards' built-in Field of View slider from **100° to 150°**.
 
 ## Features
 

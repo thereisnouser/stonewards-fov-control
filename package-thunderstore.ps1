@@ -48,7 +48,7 @@ $version = [string]$manifest.version_number
 if ($version -notmatch '^\d+\.\d+\.\d+$') {
     throw "Invalid manifest version: $version"
 }
-if ($manifest.name -ne 'FOV_Plus') {
+if ($manifest.name -ne 'FOVPlus') {
     throw "Unexpected package name: $($manifest.name)"
 }
 $pluginCode = Get-Content -LiteralPath $source -Raw -Encoding UTF8
@@ -65,7 +65,7 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     throw 'dotnet SDK not found.'
 }
 
-Write-Host "Building FOV Plus $version..." -ForegroundColor Cyan
+Write-Host "Building FOVPlus $version..." -ForegroundColor Cyan
 & dotnet build $project --configuration Release "-p:GameDir=$GameDir" "-p:ProfileDir=$ProfileDir"
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet build failed (exit code $LASTEXITCODE)."
@@ -78,7 +78,7 @@ if (-not (Test-Path -LiteralPath $dll -PathType Leaf)) {
 
 $dist = Join-Path $root 'dist'
 $stage = Join-Path $dist 'thunderstore-staging'
-$archive = Join-Path $dist ("FOV_Plus-" + $version + '.zip')
+$archive = Join-Path $dist ("FOVPlus-" + $version + '.zip')
 
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
 if (Test-Path -LiteralPath $stage) {

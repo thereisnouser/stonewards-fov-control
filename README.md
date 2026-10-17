@@ -1,6 +1,6 @@
-# Stonewards FOV Plus
+# FOVPlus
 
-A lightweight, client-side BepInEx 5 plugin that extends the **existing Stonewards FOV slider** from a maximum of 100° to **150°**. It does not add another interface, hotkeys, or a camera override.
+**FOV Plus** is a lightweight, client-side BepInEx 5 plugin that extends the **existing Stonewards FOV slider** from a maximum of 100° to **150°**. It does not add another interface, hotkeys, or a camera override.
 
 ## Features
 
@@ -30,7 +30,7 @@ powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1 `
   -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-plus"
 ```
 
-Output: `dist/FOV_Plus-0.1.0.zip`. Upload the resulting ZIP (not the source archive) to the [Stonewards Thunderstore community](https://thunderstore.io/c/stonewards/). The package script checks the icon, version consistency, and archive structure. The compiled DLL requires your local game and BepInEx assemblies.
+Output: `dist/FOVPlus-0.1.0.zip`. Upload the resulting ZIP (not the source archive) to the [Stonewards Thunderstore community](https://thunderstore.io/c/stonewards/). The package script checks the icon, version consistency, and archive structure. The compiled DLL requires your local game and BepInEx assemblies.
 
 Package metadata and description: [`thunderstore/`](thunderstore/).
 
