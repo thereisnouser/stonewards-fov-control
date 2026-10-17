@@ -25,7 +25,7 @@ foreach ($path in @($project, $source, $manifestPath, $readmePath, $changelogPat
     }
 }
 if (-not (Test-Path -LiteralPath $IconPath -PathType Leaf)) {
-    throw "FOV+ icon not found: $IconPath. Extract the release assets ZIP into the repository root so thunderstore\icon.png exists."
+    throw "FOV+ icon not found: $IconPath. Pull the latest repository files and check thunderstore\icon.png."
 }
 
 # Validate the actual, selected image. Never silently replace it with a placeholder.

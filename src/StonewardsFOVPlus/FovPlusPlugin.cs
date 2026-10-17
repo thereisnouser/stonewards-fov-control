@@ -10,7 +10,7 @@ namespace StonewardsFOVPlus
     {
         private const string PluginGuid = "com.stonewardsmods.fovplus";
         private const string PluginName = "FOVPlus";
-        private const string PluginVersion = "0.1.0";
+        private const string PluginVersion = "0.1.1";
 
         // Stonewards 0.2.3 normally exposes a 60–100 degree SliderInt.
         // The original value is stored in GameSettingsData.fpsFOV and applied
