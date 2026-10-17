@@ -8,13 +8,19 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $ProfileDir = (Resolve-Path -LiteralPath $ProfileDir).Path
-$pluginDir = Join-Path $ProfileDir 'BepInEx\plugins\StonewardsFOVControl'
+$pluginDir = Join-Path $ProfileDir 'BepInEx\plugins\StonewardsFOVPlus'
+$legacyDir = Join-Path $ProfileDir 'BepInEx\plugins\StonewardsFOVControl'
+$removed = $false
 
-if (Test-Path -LiteralPath $pluginDir -PathType Container) {
-    Remove-Item -LiteralPath $pluginDir -Recurse -Force
-    Write-Host "Removed: $pluginDir"
-} else {
-    Write-Host 'Stonewards FOV Control is not installed in this profile.'
+foreach ($path in @($pluginDir, $legacyDir)) {
+    if (Test-Path -LiteralPath $path -PathType Container) {
+        Remove-Item -LiteralPath $path -Recurse -Force
+        Write-Host "Removed: $path"
+        $removed = $true
+    }
+}
+if (-not $removed) {
+    Write-Host 'Stonewards FOV Plus is not installed in this profile.'
 }
 
 Write-Host 'User settings were left intact in BepInEx\config.'

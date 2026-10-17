@@ -1,4 +1,4 @@
-# Changelog
+# FOV+ Changelog
 
 ## 0.1.0
 

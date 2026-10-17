@@ -3,8 +3,8 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
-    <AssemblyName>StonewardsFOVControl</AssemblyName>
-    <RootNamespace>StonewardsFOVControl</RootNamespace>
+    <AssemblyName>StonewardsFOVPlus</AssemblyName>
+    <RootNamespace>StonewardsFOVPlus</RootNamespace>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 

@@ -9,8 +9,8 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $root = $PSScriptRoot
-$project = Join-Path $root 'src\StonewardsFOVControl\StonewardsFOVControl.csproj'
-$source = Join-Path $root 'src\StonewardsFOVControl\FovControlPlugin.cs'
+$project = Join-Path $root 'src\StonewardsFOVPlus\StonewardsFOVPlus.csproj'
+$source = Join-Path $root 'src\StonewardsFOVPlus\FovPlusPlugin.cs'
 $metadata = Join-Path $root 'thunderstore'
 $manifestPath = Join-Path $metadata 'manifest.json'
 $readmePath = Join-Path $metadata 'README.md'
@@ -48,7 +48,7 @@ $version = [string]$manifest.version_number
 if ($version -notmatch '^\d+\.\d+\.\d+$') {
     throw "Invalid manifest version: $version"
 }
-if ($manifest.name -ne 'FOV_Control') {
+if ($manifest.name -ne 'FOV_Plus') {
     throw "Unexpected package name: $($manifest.name)"
 }
 $pluginCode = Get-Content -LiteralPath $source -Raw -Encoding UTF8
@@ -65,20 +65,20 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     throw 'dotnet SDK not found.'
 }
 
-Write-Host "Building FOV Control $version..." -ForegroundColor Cyan
+Write-Host "Building FOV Plus $version..." -ForegroundColor Cyan
 & dotnet build $project --configuration Release "-p:GameDir=$GameDir" "-p:ProfileDir=$ProfileDir"
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet build failed (exit code $LASTEXITCODE)."
 }
 
-$dll = Join-Path $root 'src\StonewardsFOVControl\bin\Release\netstandard2.1\StonewardsFOVControl.dll'
+$dll = Join-Path $root 'src\StonewardsFOVPlus\bin\Release\netstandard2.1\StonewardsFOVPlus.dll'
 if (-not (Test-Path -LiteralPath $dll -PathType Leaf)) {
     throw "Compiled DLL missing: $dll"
 }
 
 $dist = Join-Path $root 'dist'
 $stage = Join-Path $dist 'thunderstore-staging'
-$archive = Join-Path $dist ("FOV_Control-" + $version + '.zip')
+$archive = Join-Path $dist ("FOV_Plus-" + $version + '.zip')
 
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
 if (Test-Path -LiteralPath $stage) {
@@ -86,10 +86,10 @@ if (Test-Path -LiteralPath $stage) {
 }
 
 try {
-    $pluginDir = Join-Path $stage 'plugins\StonewardsFOVControl'
+    $pluginDir = Join-Path $stage 'plugins\StonewardsFOVPlus'
     New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null
 
-    Copy-Item -LiteralPath $dll -Destination (Join-Path $pluginDir 'StonewardsFOVControl.dll')
+    Copy-Item -LiteralPath $dll -Destination (Join-Path $pluginDir 'StonewardsFOVPlus.dll')
     Copy-Item -LiteralPath $manifestPath -Destination (Join-Path $stage 'manifest.json')
     Copy-Item -LiteralPath $readmePath -Destination (Join-Path $stage 'README.md')
     Copy-Item -LiteralPath $changelogPath -Destination (Join-Path $stage 'CHANGELOG.md')
@@ -106,7 +106,7 @@ try {
         $entries = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
         foreach ($required in @(
             'manifest.json', 'README.md', 'CHANGELOG.md', 'icon.png',
-            'plugins/StonewardsFOVControl/StonewardsFOVControl.dll'
+            'plugins/StonewardsFOVPlus/StonewardsFOVPlus.dll'
         )) {
             if ($entries -notcontains $required) {
                 throw "Package ZIP is missing: $required"

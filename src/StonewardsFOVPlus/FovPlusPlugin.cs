@@ -3,13 +3,13 @@ using System.Reflection;
 using BepInEx;
 using HarmonyLib;
 
-namespace StonewardsFOVControl
+namespace StonewardsFOVPlus
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
-    public sealed class FovControlPlugin : BaseUnityPlugin
+    public sealed class FovPlusPlugin : BaseUnityPlugin
     {
-        private const string PluginGuid = "com.stonewardsmods.fovcontrol";
-        private const string PluginName = "Stonewards FOV Control";
+        private const string PluginGuid = "com.stonewardsmods.fovplus";
+        private const string PluginName = "Stonewards FOV Plus";
         private const string PluginVersion = "0.1.0";
 
         // Stonewards 0.2.3 normally exposes a 60–100 degree SliderInt.
@@ -38,7 +38,7 @@ namespace StonewardsFOVControl
 
             try
             {
-                MethodInfo postfix = typeof(FovControlPlugin).GetMethod(
+                MethodInfo postfix = typeof(FovPlusPlugin).GetMethod(
                     nameof(ExtendFovSliderRange),
                     BindingFlags.NonPublic | BindingFlags.Static);
 

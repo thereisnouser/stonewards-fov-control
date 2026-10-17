@@ -1,4 +1,4 @@
-# Stonewards FOV Control
+# Stonewards FOV Plus
 
 A lightweight, client-side BepInEx 5 plugin that extends the **existing Stonewards FOV slider** from a maximum of 100° to **150°**. It does not add another interface, hotkeys, or a camera override.
 
@@ -15,7 +15,7 @@ Requires the .NET SDK, Stonewards and a BepInEx 5 r2modman profile:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-and-install.ps1 `
   -GameDir "F:\Steam\steamapps\common\Stonewards" `
-  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-control"
+  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-plus"
 ```
 
 ## Prepare Thunderstore v0.1.0
@@ -27,10 +27,10 @@ Build the DLL and create the upload package in one step:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1 `
   -GameDir "F:\Steam\steamapps\common\Stonewards" `
-  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-control"
+  -ProfileDir "C:\Users\user\AppData\Roaming\r2modmanPlus-local\Stonewards\profiles\stonewards-fov-plus"
 ```
 
-Output: `dist/FOV_Control-0.1.0.zip`. Upload the resulting ZIP (not the source archive) to the [Stonewards Thunderstore community](https://thunderstore.io/c/stonewards/). The package script checks the icon, version consistency, and archive structure. The compiled DLL requires your local game and BepInEx assemblies.
+Output: `dist/FOV_Plus-0.1.0.zip`. Upload the resulting ZIP (not the source archive) to the [Stonewards Thunderstore community](https://thunderstore.io/c/stonewards/). The package script checks the icon, version consistency, and archive structure. The compiled DLL requires your local game and BepInEx assemblies.
 
 Package metadata and description: [`thunderstore/`](thunderstore/).
 
